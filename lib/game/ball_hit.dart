@@ -1,0 +1,1 @@
+enum BallHit {movingToPipe, hitted, movingBack, initial}
