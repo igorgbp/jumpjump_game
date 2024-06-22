@@ -11,13 +11,14 @@ class CurrentPipe extends PositionComponent with HasGameRef<JumpJumpGame>{
   PipePosition pipePosition;
   @override
   Future<void> onLoad() async {
+    final heightg = Random().nextInt(100) + 50 / 2*2;
+
     // position.y = gameRef.size.y-size.y;
-    position.y = -gameRef.size.y;
+    position.y = -heightg;
     // addAll([
     //   Pipe(pipePosition: PipePosition.right, height: Random().nextInt(400)/5),
     //   Pipe(pipePosition: PipePosition.left, height:  Random().nextInt(400)/5),
     // ]);
-    final heightg = Random().nextInt(100) + 50 / 2*2;
     add(Pipe(pipePosition: pipePosition, height: heightg));
   }
 

@@ -9,76 +9,90 @@ import 'package:jump_jump/game/configuration.dart';
 import 'package:jump_jump/game/jump_jump_game.dart';
 import 'package:jump_jump/game/pipe_position.dart';
 
-class Ball extends SpriteGroupComponent<BallMovement> with HasGameRef<JumpJumpGame>, CollisionCallbacks{
+class Ball extends SpriteGroupComponent<BallMovement>
+    with HasGameRef<JumpJumpGame>, CollisionCallbacks {
   Ball();
+  int score = 0;
   late double ballInitialPositionY;
   late double ballInitialPositionX;
   late BallHit ballHit;
-
+  Component? currentEffect;
 
   @override
   Future<void> onLoad() async {
     ballHit = BallHit.initial;
     final ballflat = await gameRef.loadSprite(Assets.ball);
+    score = 0;
+    print('load');
     //carregar depois as outras imagens da bola com os reflexos
     size = Vector2(50, 50);
-     ballInitialPositionY = gameRef.size.y - (gameRef.size.y /4);
-     ballInitialPositionX = gameRef.size.x /2 -size.x /2;
-    position = Vector2(ballInitialPositionX,ballInitialPositionY);
+    ballInitialPositionY = gameRef.size.y - (gameRef.size.y / 2);
+    ballInitialPositionX = gameRef.size.x / 2 - size.x / 2;
+    position = Vector2(ballInitialPositionX, ballInitialPositionY);
 
     current = BallMovement.middle;
-    sprites = { 
+    sprites = {
       BallMovement.middle: ballflat,
-      BallMovement.left:ballflat,
-  BallMovement.right: ballflat
+      BallMovement.left: ballflat,
+      BallMovement.right: ballflat
     };
     add(CircleHitbox());
   }
-  void jump({required PipePosition pipePosition}){
-    add(
-      MoveByEffect(Vector2((pipePosition== PipePosition.right? 1:-1) * gameRef.size.x/2, 0), EffectController(duration:0.2, curve: Curves.ease), onComplete: ()=> onCompleteJump(pipePosition: pipePosition))
-    );
+
+  void jump({required PipePosition pipePosition}) {
+    if (position.x.round() != ballInitialPositionX.round()) {
+      print('clicou quando não estava no centro');
+    } else {
+      add(MoveByEffect(
+          Vector2(
+              (pipePosition == PipePosition.right ? 1 : -1) *
+                 ballInitialPositionX,
+              0),
+          EffectController(duration: 0.17, curve: Curves.easeOutCubic),
+          onComplete: () => onCompleteJump(pipePosition: pipePosition)));
+    }
+
     ballHit = BallHit.movingToPipe;
-    print('ball moving to pipe');
     current = BallMovement.middle;
   }
 
-  void onCompleteJump({required PipePosition pipePosition}){
-     if(ballHit == BallHit.movingToPipe){
-      gameOver();
-      return;
-    }
-    add(
-      MoveByEffect(Vector2((pipePosition== PipePosition.right? -1 : 1) * gameRef.size.x/2 , 0), EffectController(duration:2, curve: Curves.easeOutExpo), onComplete: ()=> current = BallMovement.left)
-    ); 
-   
+  void onCompleteJump({required PipePosition pipePosition}) {
+    add(MoveByEffect(
+        Vector2((pipePosition == PipePosition.right ? -1 : 1) * ballInitialPositionX, 0),
+        EffectController(duration: 0.1, curve: Curves.easeInCubic),
+        onComplete: () {
+          if(position.x != ballInitialPositionX){
+            reset();
+          }
+        }));
     ballHit = BallHit.movingBack;
-    print('ball moving back');
   }
 
   @override
   void onCollisionStart(
-    Set<Vector2> intersectionPoints,
-    PositionComponent other
-  ){
+      Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
     ballHit = BallHit.hitted;
-    print('ballhitted');
-    print('colisao');
+    score = score + 1;
+    gameRef.setGravityUp();
+    gameRef.score.text = 'score: ${score}';
   }
 
-  void reset(){
-    position = Vector2(ballInitialPositionX , ballInitialPositionY);
+  void reset() {
+    position = Vector2(ballInitialPositionX, ballInitialPositionY);
   }
-  
-  void gameOver(){
+
+  void gameOver() {
     gameRef.overlays.add('gameOver');
+    reset();
     gameRef.pauseEngine();
   }
 
   @override
-  void update(double dt){
+  void update(double dt) {
+    // print(position.x);
     super.update(dt);
+
     // posti
   }
 }

@@ -35,6 +35,8 @@ class GameOverScreen extends StatelessWidget {
 
   void _restartGame(){
     game.ball.reset();
+    game.score.text = 'score 0';
+    game.ball.score = 0;
     game.overlays.remove('gameOver');
     game.overlays.add('mainMenu');
     game.resumeEngine();
