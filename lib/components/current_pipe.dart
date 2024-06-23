@@ -25,6 +25,6 @@ class CurrentPipe extends PositionComponent with HasGameRef<JumpJumpGame>{
   @override
   void update(double dt) {
     super.update(dt);
-    position.y -= Config.gameSpeed * dt;
+    position.y -= Config.gameSpeed * gameRef.velocityIncreaser * dt;
   }
 }

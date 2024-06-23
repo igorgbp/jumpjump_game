@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
@@ -8,6 +10,8 @@ import 'package:jump_jump/game/ball_movement.dart';
 import 'package:jump_jump/game/configuration.dart';
 import 'package:jump_jump/game/jump_jump_game.dart';
 import 'package:jump_jump/game/pipe_position.dart';
+import 'package:jump_jump/models/record.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Ball extends SpriteGroupComponent<BallMovement>
     with HasGameRef<JumpJumpGame>, CollisionCallbacks {
@@ -26,8 +30,8 @@ class Ball extends SpriteGroupComponent<BallMovement>
     print('load');
     //carregar depois as outras imagens da bola com os reflexos
     size = Vector2(50, 50);
-    ballInitialPositionY = gameRef.size.y - (gameRef.size.y / 2);
-    ballInitialPositionX = gameRef.size.x / 2 - size.x / 2;
+    ballInitialPositionY = gameRef.size.x / 5;
+    ballInitialPositionX = gameRef.size.x / 2;
     position = Vector2(ballInitialPositionX, ballInitialPositionY);
 
     current = BallMovement.middle;
@@ -46,7 +50,7 @@ class Ball extends SpriteGroupComponent<BallMovement>
       add(MoveByEffect(
           Vector2(
               (pipePosition == PipePosition.right ? 1 : -1) *
-                 ballInitialPositionX,
+                  ballInitialPositionX,
               0),
           EffectController(duration: 0.17, curve: Curves.easeOutCubic),
           onComplete: () => onCompleteJump(pipePosition: pipePosition)));
@@ -58,13 +62,16 @@ class Ball extends SpriteGroupComponent<BallMovement>
 
   void onCompleteJump({required PipePosition pipePosition}) {
     add(MoveByEffect(
-        Vector2((pipePosition == PipePosition.right ? -1 : 1) * ballInitialPositionX, 0),
+        Vector2(
+            (pipePosition == PipePosition.right ? -1 : 1) *
+                ballInitialPositionX,
+            0),
         EffectController(duration: 0.1, curve: Curves.easeInCubic),
         onComplete: () {
-          if(position.x != ballInitialPositionX){
-            reset();
-          }
-        }));
+      if (position.x != ballInitialPositionX) {
+        position.x = ballInitialPositionX;
+      }
+    }));
     ballHit = BallHit.movingBack;
   }
 
@@ -82,10 +89,22 @@ class Ball extends SpriteGroupComponent<BallMovement>
     position = Vector2(ballInitialPositionX, ballInitialPositionY);
   }
 
-  void gameOver() {
+  void gameOver() async {
     gameRef.overlays.add('gameOver');
     reset();
+    gameRef.velocityIncreaser = 1;
     gameRef.pauseEngine();
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    var recordsString = prefs.getString('records');
+    if (recordsString != null) {
+      var recordsDecoded = jsonDecode(recordsString) as List<dynamic>;
+      var parsedList =
+          recordsDecoded.map((e) => PointsRecord.fromJson(e)).toList();
+      parsedList.add(PointsRecord(points: score, date: DateTime.now()));
+      var test = parsedList.map((e) => e.toJson(e)).toList();
+      prefs.setString('records', jsonEncode(test));
+    }
   }
 
   @override

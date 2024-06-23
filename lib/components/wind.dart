@@ -7,19 +7,19 @@ import 'package:jump_jump/game/assets.dart';
 import 'package:jump_jump/game/configuration.dart';
 import 'package:jump_jump/game/jump_jump_game.dart';
 
-class Wind extends ParallaxComponent<JumpJumpGame> {
+class Wind extends ParallaxComponent<JumpJumpGame> with HasGameRef<JumpJumpGame> {
   Wind();
 
   @override
   Future<void> onLoad() async {
     final wind = await Flame.images.load(Assets.wind);
     parallax =
-        Parallax([ParallaxLayer(ParallaxImage(wind, fill: LayerFill.none, repeat: ImageRepeat.repeatY))]);
+        Parallax([ParallaxLayer(ParallaxImage(wind, fill: LayerFill.width, repeat: ImageRepeat.repeatY))]);
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    parallax?.baseVelocity.y = Config.gameSpeed;
+    parallax?.baseVelocity.y = gameRef.velocityIncreaser * Config.gameSpeed/2;
   }
 }
