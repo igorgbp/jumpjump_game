@@ -71,6 +71,7 @@ class Ball extends SpriteGroupComponent<BallMovement>
       if (position.x != ballInitialPositionX) {
         position.x = ballInitialPositionX;
       }
+      ballHit = BallHit.initial;
     }));
     ballHit = BallHit.movingBack;
   }
@@ -79,8 +80,11 @@ class Ball extends SpriteGroupComponent<BallMovement>
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-    ballHit = BallHit.hitted;
+    if(reallyHitted()){
     score = score + 1;
+    }
+    ballHit = BallHit.hitted;
+
     gameRef.setGravityUp();
     gameRef.score.text = 'score: ${score}';
   }
@@ -107,11 +111,13 @@ class Ball extends SpriteGroupComponent<BallMovement>
     }
   }
 
+  bool reallyHitted(){
+    return ballHit == BallHit.movingToPipe;
+  }
+
   @override
   void update(double dt) {
-    // print(position.x);
+    // TODO: implement update
     super.update(dt);
-
-    // posti
   }
 }

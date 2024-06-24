@@ -12,7 +12,7 @@ class Wind extends ParallaxComponent<JumpJumpGame> with HasGameRef<JumpJumpGame>
 
   @override
   Future<void> onLoad() async {
-    final wind = await Flame.images.load(Assets.wind);
+    final wind = await Flame.images.load(Assets.stars);
     parallax =
         Parallax([ParallaxLayer(ParallaxImage(wind, fill: LayerFill.width, repeat: ImageRepeat.repeatY))]);
   }
@@ -20,6 +20,6 @@ class Wind extends ParallaxComponent<JumpJumpGame> with HasGameRef<JumpJumpGame>
   @override
   void update(double dt) {
     super.update(dt);
-    parallax?.baseVelocity.y = gameRef.velocityIncreaser * Config.gameSpeed/2;
+    parallax?.baseVelocity.y = gameRef.velocityIncreaser * Config.gameSpeed/8;
   }
 }
