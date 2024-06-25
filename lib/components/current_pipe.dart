@@ -21,7 +21,7 @@ class CurrentPipe extends PositionComponent with HasGameRef<JumpJumpGame>{
     //   Pipe(pipePosition: PipePosition.left, height:  Random().nextInt(400)/5),
     // ]);
     add(Pipe(pipePosition: pipePosition, height: heightg));
-    // add(ShadowPipe(pipePosition: pipePosition, height: height));
+    add(ShadowPipe(pipePosition: pipePosition, height: height));
   }
 
   @override

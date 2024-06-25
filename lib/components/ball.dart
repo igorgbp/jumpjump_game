@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
+import 'package:flame/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:jump_jump/game/assets.dart';
 import 'package:jump_jump/game/ball_hit.dart';
@@ -20,6 +21,7 @@ class Ball extends SpriteGroupComponent<BallMovement>
   late double ballInitialPositionY;
   late double ballInitialPositionX;
   late BallHit ballHit;
+  bool canHit = true;
   Component? currentEffect;
 
   @override
@@ -50,7 +52,7 @@ class Ball extends SpriteGroupComponent<BallMovement>
       add(MoveByEffect(
           Vector2(
               (pipePosition == PipePosition.right ? 1 : -1) *
-                  ballInitialPositionX,
+                  (ballInitialPositionX - (size.x /2 + 10 )),
               0),
           EffectController(duration: 0.17, curve: Curves.easeOutCubic),
           onComplete: () => onCompleteJump(pipePosition: pipePosition)));
@@ -80,13 +82,15 @@ class Ball extends SpriteGroupComponent<BallMovement>
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     super.onCollisionStart(intersectionPoints, other);
-    if(reallyHitted()){
+    if(canHit){
     score = score + 1;
-    }
+    canHit = false;
     ballHit = BallHit.hitted;
-
     gameRef.setGravityUp();
     gameRef.score.text = 'score: ${score}';
+
+    }
+
   }
 
   void reset() {
@@ -111,12 +115,13 @@ class Ball extends SpriteGroupComponent<BallMovement>
     }
   }
 
-  bool reallyHitted(){
-    return ballHit == BallHit.movingToPipe;
-  }
+
 
   @override
   void update(double dt) {
+    if(position.x == ballInitialPositionX){
+      canHit = true;
+    }
     // TODO: implement update
     super.update(dt);
   }

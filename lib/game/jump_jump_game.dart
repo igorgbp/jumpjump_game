@@ -20,13 +20,12 @@ import 'package:jump_jump/game/pipe_position.dart';
 class JumpJumpGame extends FlameGame with TapDetector, HasCollisionDetection {
   late Ball ball;
   PipePosition pipePosition = PipePosition.right;
-  // late bool gravityDown;
   double velocityIncreaser = 1;
-  // bool aumentar = true;
   bool showPipe = true;
   double pointGravityFuture = 0;
   double pointGravityCurrent = 0;
   late TextComponent score;
+  bool movingUp = false;
   Timer interval = Timer(Config.initialTimeBetweenPipes, repeat: true);
   @override
   Future<void> onLoad() async {
@@ -53,7 +52,7 @@ class JumpJumpGame extends FlameGame with TapDetector, HasCollisionDetection {
   TextComponent buildScore() {
     return TextComponent(
         text: 'Score: 0',
-        position: Vector2(size.x / 2, size.y * 0.2),
+        position: Vector2(size.x / 2, size.y * 0.05),
         anchor: Anchor.center);
   }
 
@@ -79,11 +78,12 @@ class JumpJumpGame extends FlameGame with TapDetector, HasCollisionDetection {
     print('future ${pointGravityFuture}, ballhit: ${ball.ballHit} current: ${pointGravityCurrent}');
    
    if(ball.ballHit == BallHit.initial){
-
-   
      if( pointGravityCurrent<pointGravityFuture){
-      pointGravityCurrent = pointGravityCurrent +pointGravityFuture/25;
+      var auxPointGravityCurrent = movingUp? pointGravityCurrent :  0;
+      pointGravityCurrent = auxPointGravityCurrent +pointGravityFuture/25;
+      movingUp = true;
     }else{
+      movingUp = false;
       pointGravityFuture = 0;
       if(pointGravityCurrent < 0){
         pointGravityCurrent = 0;
@@ -98,8 +98,8 @@ class JumpJumpGame extends FlameGame with TapDetector, HasCollisionDetection {
     if (ball.position.y <30){
       pointGravityCurrent = 0;
       pointGravityFuture = 0;   }
-    ball.position = Vector2(ball.position.x,
-        ball.position.y + Config.ballMovingTendency - pointGravityCurrent);
+    // ball.position = Vector2(ball.position.x,
+    //     ball.position.y + Config.ballMovingTendency - pointGravityCurrent);
     if (ball.position.y.round() >= (size.y).round()) {
       // print('no final ${size.x}');
       ball.gameOver();
@@ -118,6 +118,9 @@ class JumpJumpGame extends FlameGame with TapDetector, HasCollisionDetection {
       velocityIncreaser = velocityIncreaser + 0.01;
     } else if (ball.score > 50 && velocityIncreaser <= 5) {
       velocityIncreaser = velocityIncreaser + 0.003;
+    }
+    else if (ball.score > 60 && velocityIncreaser <= 8) {
+      velocityIncreaser = velocityIncreaser + 0.01;
     }
   }
 
