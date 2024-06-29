@@ -1,8 +1,12 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:jump_jump/game/jump_jump_game.dart';
 import 'package:jump_jump/models/record.dart';
+import 'package:jump_jump/models/user.dart';
+import 'package:jump_jump/services/points.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainMenuScreen extends StatefulWidget {
@@ -24,8 +28,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
   void initState() {
     print('inistate main menu');
     widget.game.pauseEngine();
-
-    _getRecords();
+    _checkUsername();
     controller = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -108,11 +111,11 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                         padding: const EdgeInsets.symmetric(
                             vertical: 16, horizontal: 24),
                         decoration: BoxDecoration(
+                            color: Color.fromRGBO(166, 50, 168,1),
                             borderRadius:
-                                const BorderRadius.all(Radius.circular(16)),
-                            border:
-                                Border.all(width: 2, color: Colors.redAccent)),
-                        child: Text('Suck'),
+                                const BorderRadius.all(Radius.circular(80)),
+),
+                        child: Text('Jogar', style: TextStyle(fontFamily: 'Mighty', color: Colors.white, fontSize: 30)),
                       ),
                     ),
                     // _listaRecords.length > 0
@@ -161,24 +164,32 @@ class _MainMenuScreenState extends State<MainMenuScreen>
     widget.game.resumeEngine();
   }
 
-  void _getRecords() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    var recordsString = prefs.getString('records');
-    if (recordsString != null) {
-      var recordsDecoded = jsonDecode(recordsString) as List<dynamic>;
-      var parsedList =
-          recordsDecoded.map((e) => PointsRecord.fromJson(e)).toList();
-      parsedList.sort(
-        (a, b) => b.points.compareTo(a.points),
-      );
-      setState(() {
-        _listaRecords = parsedList;
-      });
+  void _checkUsername()async{
+    print('chacando');
+    User? user = await GameService().getUser();
+    if(user == null){
+      widget.game.overlays.add('set_username');
     }
   }
 
-  String _dateToString(DateTime data) {
-    var string = '${data.day}/${data.month}  ${data.hour}: ${data.minute}';
-    return string;
-  }
+  // void _getRecords() async {
+  //   final SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   var recordsString = prefs.getString('user');
+  //   if (recordsString != null) {
+  //     var recordsDecoded = jsonDecode(recordsString) as List<dynamic>;
+  //     var parsedList =
+  //         recordsDecoded.map((e) => PointsRecord.fromJson(e)).toList();
+  //     parsedList.sort(
+  //       (a, b) => b.points.compareTo(a.points),
+  //     );
+  //     setState(() {
+  //       _listaRecords = parsedList;
+  //     });
+  //   }
+  // }
+
+  // String _dateToString(DateTime data) {
+  //   var string = '${data.day}/${data.month}  ${data.hour}: ${data.minute}';
+  //   return string;
+  // }
 }

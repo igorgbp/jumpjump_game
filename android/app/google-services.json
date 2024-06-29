@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "472031580584",
+    "project_id": "planet-sucker",
+    "storage_bucket": "planet-sucker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472031580584:android:aeeb1d28fa2a5457b28d9d",
+        "android_client_info": {
+          "package_name": "com.example.jump_jump"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCaAty56zZJPy9vlzUb8P1lqRFmpUTGXlk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
